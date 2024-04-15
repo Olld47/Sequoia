@@ -6,3 +6,7 @@ push:
   enable: false
   wxpusher_uid: ""
   wxpusher_token: ""
+  bark_device_key: ""
+  email_pwd: ""
+  email_sender: ""
+  email_receiver: ""

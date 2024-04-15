@@ -3,14 +3,15 @@
 import akshare as ak
 import logging
 import talib as tl
+import time
 
 import concurrent.futures
 
 
 def fetch(code_name):
     stock = code_name[0]
-    data = ak.stock_zh_a_hist(symbol=stock, period="daily", start_date="20220101", adjust="qfq")
-
+    data = ak.fund_etf_hist_em(symbol=stock, period="daily", start_date="20220101", adjust="qfq")
+    time.sleep(0.300)
     if data is None or data.empty:
         logging.debug("股票："+stock+" 没有数据，略过...")
         return
@@ -22,7 +23,7 @@ def fetch(code_name):
 
 def run(stocks):
     stocks_data = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers= 4) as executor:
         future_to_stock = {executor.submit(fetch, stock): stock for stock in stocks}
         for future in concurrent.futures.as_completed(future_to_stock):
             stock = future_to_stock[future]
@@ -33,5 +34,14 @@ def run(stocks):
                     stocks_data[stock] = data
             except Exception as exc:
                 print('%s(%r) generated an exception: %s' % (stock[1], stock[0], exc))
+
+    # for stock in stocks:
+    #     try:
+    #         data = fetch(stock)
+    #         if data is not None:
+    #             data = data.astype({'成交量': 'double'})
+    #             stocks_data[stock] = data
+    #     except Exception as exc:
+    #         print('%s(%r) generated an exception: %s' % (stock[1], stock[0], exc))
 
     return stocks_data
